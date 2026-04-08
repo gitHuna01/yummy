@@ -1,15 +1,21 @@
-# 1. 가볍고 최적화된 python 3.11 slim 버전 사용
-FROM python:3.11-slim
+# 1. 과제 요구사항에 맞춘 Debian 12 (Bookworm) 기반의 python slim 버전 사용
+FROM python:3.11-slim-bookworm
 
 # 2. 파이썬 및 캐시 환경변수 설정
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     HF_HOME=/app/.cache/huggingface
 
-# 3. 컨테이너 내부 작업 디렉토리 설정
+# 3. HW2 과제 필수 패키지 설치 (얼굴인식/OpenCV 작동에 필수)
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 4. 컨테이너 내부 작업 디렉토리 설정
 WORKDIR /app
 
-# 4. 보안을 위한 내부 사용자 생성 (root 권한 피하기)
+# 5. 보안을 위한 내부 사용자 생성 (root 권한 피하기)
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # 5. 캐시 최적화를 위해 의존성 목록만 먼저 복사
